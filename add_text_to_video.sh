@@ -1,13 +1,14 @@
 #!/bin/bash
 
 # Check if the correct number of arguments were provided
-if [ "$#" -ne 2 ]; then
-    echo "Usage: $0 <input_directory> <output_directory>"
+if [ "$#" -ne 3 ]; then
+    echo "Usage: $0 <new_directory> <with_covers_directory> <no_covers_directory>"
     exit 1
 fi
 
 INPUT_DIR="$1"
 OUTPUT_DIR="$2"
+STORAGE_DIR="$3"
 
 # Check if input directory exists
 if [ ! -d "$INPUT_DIR" ]; then
@@ -15,19 +16,22 @@ if [ ! -d "$INPUT_DIR" ]; then
     exit 1
 fi
 
-# Check if output directory exists, if not try to create it
+# Check if with_covers directory exists
 if [ ! -d "$OUTPUT_DIR" ]; then
-    mkdir -p "$OUTPUT_DIR"
-    if [ $? -ne 0 ]; then
-        echo "Error: Could not create output directory '$OUTPUT_DIR'."
-        exit 1
-    fi
+    echo "Error: With covers directory '$OUTPUT_DIR' does not exist."
+    exit 1
+fi
+
+# Check if no_covers directory exists
+if [ ! -d "$STORAGE_DIR" ]; then
+    echo "Error: With covers directory '$STORAGE_DIR' does not exist."
+    exit 1
 fi
 
 # Iterate over all mp4 files in the input directory
-for VIDEO_FILE in "$INPUT_DIR"/*.mp4; do
+for VIDEO_FILE in "$INPUT_DIR"/*.MP4; do
     # Extract the base name without extension to use as header text
-    BASE_NAME=$(basename "$VIDEO_FILE" .mp4)  # Adjust the extension as necessary
+    BASE_NAME=$(basename "$VIDEO_FILE" .MP4)  # Adjust the extension as necessary
 
     # Split the base name into words
     IFS=' ' read -r -a WORDS <<< "$BASE_NAME"
@@ -56,16 +60,18 @@ for VIDEO_FILE in "$INPUT_DIR"/*.mp4; do
     drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART1':fontcolor=#FBF4CC:bordercolor=#0375B8:borderw=5:fontsize=90:x=100:y=(h-text_h)/2 - 150,
     drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART2':fontcolor=#FBF4CC:bordercolor=#F59C04:borderw=5:fontsize=90:x=100:y=(h-text_h)/2 - 50,
     drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART3':fontcolor=#FBF4CC:bordercolor=#0375B8:borderw=5:fontsize=90:x=100:y=(h-text_h)/2 + 50,
-    drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART4':fontcolor=#FBF4CC:bordercolor=#F59C04:borderw=5:fontsize=90:x=100:y=(h-text_h)/2 + 150" -c:v libx264 -c:a aac -strict experimental "$OUTPUT_DIR/${BASE_NAME}-intro.mp4"
+    drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART4':fontcolor=#FBF4CC:bordercolor=#F59C04:borderw=5:fontsize=90:x=100:y=(h-text_h)/2 + 150" -c:v libx264 -c:a aac -strict experimental "$OUTPUT_DIR/${BASE_NAME}-intro.MP4"
 
     # Extract the rest of the video
-    ffmpeg -ss 3 -i "$VIDEO_FILE" -c:v libx264 -c:a aac "$OUTPUT_DIR/${BASE_NAME}-main.mp4"
+    ffmpeg -ss 3 -i "$VIDEO_FILE" -c:v libx264 -c:a aac "$OUTPUT_DIR/${BASE_NAME}-main.MP4"
 
     # Concatenate the videos using the concat demuxer
-    echo "file '${BASE_NAME}-intro.mp4'" > "$OUTPUT_DIR/filelist.txt"
-    echo "file '${BASE_NAME}-main.mp4'" >> "$OUTPUT_DIR/filelist.txt"
-    ffmpeg -y -f concat -safe 0 -i "$OUTPUT_DIR/filelist.txt" -c:v libx264 -c:a aac "$OUTPUT_DIR/${BASE_NAME}.mp4"
+    echo "file '${BASE_NAME}-intro.MP4'" > "$OUTPUT_DIR/filelist.txt"
+    echo "file '${BASE_NAME}-main.MP4'" >> "$OUTPUT_DIR/filelist.txt"
+    ffmpeg -y -f concat -safe 0 -i "$OUTPUT_DIR/filelist.txt" -c:v libx264 -c:a aac "$OUTPUT_DIR/${BASE_NAME}.MP4"
 
     # Remove intermediate files
-    rm "$OUTPUT_DIR/${BASE_NAME}-intro.mp4" "$OUTPUT_DIR/${BASE_NAME}-main.mp4" "$OUTPUT_DIR/filelist.txt"
+    rm "$OUTPUT_DIR/${BASE_NAME}-intro.MP4" "$OUTPUT_DIR/${BASE_NAME}-main.MP4" "$OUTPUT_DIR/filelist.txt"
+    # Move initial file to storage
+    mv "$VIDEO_FILE" $STORAGE_DIR
 done
