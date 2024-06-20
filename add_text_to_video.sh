@@ -6,6 +6,7 @@ if [ "$#" -ne 3 ]; then
     exit 1
 fi
 
+INTRO_LENGTH_SEC=0.5
 INPUT_DIR="$1"
 OUTPUT_DIR="$2"
 STORAGE_DIR="$3"
@@ -54,16 +55,16 @@ for VIDEO_FILE in "$INPUT_DIR"/*.MP4; do
     FRAME_RATE=$(ffprobe -v error -select_streams v -show_entries stream=r_frame_rate -of default=noprint_wrappers=1:nokey=1 "$VIDEO_FILE")
     FPS=$(echo "scale=2; $FRAME_RATE" | bc)
 
-    # Generate the intro video with text overlay using the split and capitalized file name
-    ffmpeg -i "$VIDEO_FILE" -t 3 -filter_complex "
+    # Ensure correct video speed by using -filter:v "fps=$FPS" in ffmpeg commands
+    ffmpeg -i "$VIDEO_FILE" -t $INTRO_LENGTH_SEC -filter_complex "
     [0:v]fps=fps=$FPS,
     drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART1':fontcolor=#FBF4CC:bordercolor=#0375B8:borderw=5:fontsize=90:x=100:y=(h-text_h)/2 - 150,
     drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART2':fontcolor=#FBF4CC:bordercolor=#F59C04:borderw=5:fontsize=90:x=100:y=(h-text_h)/2 - 50,
     drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART3':fontcolor=#FBF4CC:bordercolor=#0375B8:borderw=5:fontsize=90:x=100:y=(h-text_h)/2 + 50,
     drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART4':fontcolor=#FBF4CC:bordercolor=#F59C04:borderw=5:fontsize=90:x=100:y=(h-text_h)/2 + 150" -c:v libx264 -c:a aac -strict experimental "$OUTPUT_DIR/${BASE_NAME}-intro.MP4"
 
-    # Extract the rest of the video
-    ffmpeg -ss 3 -i "$VIDEO_FILE" -c:v libx264 -c:a aac "$OUTPUT_DIR/${BASE_NAME}-main.MP4"
+    # Extract the rest of the video at correct speed
+    ffmpeg -ss $INTRO_LENGTH_SEC -i "$VIDEO_FILE" -filter:v "fps=fps=$FPS" -c:v libx264 -c:a aac "$OUTPUT_DIR/${BASE_NAME}-main.MP4"
 
     # Concatenate the videos using the concat demuxer
     echo "file '${BASE_NAME}-intro.MP4'" > "$OUTPUT_DIR/filelist.txt"
