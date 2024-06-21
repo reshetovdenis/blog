@@ -7,6 +7,10 @@ if [ "$#" -ne 3 ]; then
 fi
 
 INTRO_LENGTH_SEC=0.5
+FONT_SIZE=150
+INDENT=75
+UPLIFT=95
+PADDING_LEFT=120
 INPUT_DIR="$1"
 OUTPUT_DIR="$2"
 STORAGE_DIR="$3"
@@ -36,14 +40,54 @@ for VIDEO_FILE in "$INPUT_DIR"/*.MP4; do
 
     # Split the base name into words
     IFS=' ' read -r -a WORDS <<< "$BASE_NAME"
-    NUM_WORDS=${#WORDS[@]}
-    QUARTER_INDEX=$((NUM_WORDS / 4))
+    TOTAL_CHARS=0
+    PART1=""
+    PART2=""
+    PART3=""
+    PART4=""
 
-    # Join words into four parts
-    PART1="${WORDS[@]:0:$QUARTER_INDEX}"
-    PART2="${WORDS[@]:$QUARTER_INDEX:$QUARTER_INDEX}"
-    PART3="${WORDS[@]:$((2 * QUARTER_INDEX)):$QUARTER_INDEX}"
-    PART4="${WORDS[@]:$((3 * QUARTER_INDEX))}"
+    # Define the limit of characters across all parts
+    CHAR_LIMIT=10
+
+    for word in "${WORDS[@]}"; do
+        # Calculate the length of the current word plus a space (if it's not the first word in the part)
+        WORD_LENGTH=${#word}
+        [ -n "$PART1" ] && WORD_LENGTH=$((WORD_LENGTH + 1))
+        
+        # Assign words to parts until the character limit is reached
+        if [ $((TOTAL_CHARS + WORD_LENGTH)) -le $CHAR_LIMIT ]; then
+            if [ -n "$PART1" ]; then
+                PART1="$PART1 $word"
+            else
+                PART1="$word"
+            fi
+            TOTAL_CHARS=$((TOTAL_CHARS + WORD_LENGTH))
+        elif [ $((TOTAL_CHARS + WORD_LENGTH)) -le $((2 * CHAR_LIMIT)) ]; then
+            if [ -n "$PART2" ]; then
+                PART2="$PART2 $word"
+            else
+                PART2="$word"
+            fi
+            TOTAL_CHARS=$((TOTAL_CHARS + WORD_LENGTH))
+        elif [ $((TOTAL_CHARS + WORD_LENGTH)) -le $((3 * CHAR_LIMIT)) ]; then
+            if [ -n "$PART3" ]; then
+                PART3="$PART3 $word"
+            else
+                PART3="$word"
+            fi
+            TOTAL_CHARS=$((TOTAL_CHARS + WORD_LENGTH))
+        elif [ $((TOTAL_CHARS + WORD_LENGTH)) -le $((4 * CHAR_LIMIT)) ]; then
+            if [ -n "$PART4" ]; then
+                PART4="$PART4 $word"
+            else
+                PART4="$word"
+            fi
+            TOTAL_CHARS=$((TOTAL_CHARS + WORD_LENGTH))
+        else
+            break  # Stop adding words if the limit for all parts is reached
+        fi
+    done
+
 
     # Convert arrays to strings and make uppercase
     PART1=$(echo "${PART1[@]}" | tr '[:lower:]' '[:upper:]')
@@ -58,10 +102,10 @@ for VIDEO_FILE in "$INPUT_DIR"/*.MP4; do
     # Ensure correct video speed by using -filter:v "fps=$FPS" in ffmpeg commands
     ffmpeg -i "$VIDEO_FILE" -t $INTRO_LENGTH_SEC -filter_complex "
     [0:v]fps=fps=$FPS,
-    drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART1':fontcolor=#FBF4CC:bordercolor=#0375B8:borderw=5:fontsize=90:x=100:y=(h-text_h)/2 - 150,
-    drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART2':fontcolor=#FBF4CC:bordercolor=#F59C04:borderw=5:fontsize=90:x=100:y=(h-text_h)/2 - 50,
-    drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART3':fontcolor=#FBF4CC:bordercolor=#0375B8:borderw=5:fontsize=90:x=100:y=(h-text_h)/2 + 50,
-    drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART4':fontcolor=#FBF4CC:bordercolor=#F59C04:borderw=5:fontsize=90:x=100:y=(h-text_h)/2 + 150" -c:v libx264 -c:a aac -strict experimental "$OUTPUT_DIR/${BASE_NAME}-intro.MP4"
+    drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART1':fontcolor=#FBF4CC:bordercolor=#0375B8:borderw=5:fontsize=$FONT_SIZE:x=$PADDING_LEFT:y=(h-text_h)/2 - (3*$INDENT+$UPLIFT),
+    drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART2':fontcolor=#FBF4CC:bordercolor=#F59C04:borderw=5:fontsize=$FONT_SIZE:x=$PADDING_LEFT:y=(h-text_h)/2 - $INDENT-$UPLIFT,
+    drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART3':fontcolor=#FBF4CC:bordercolor=#0375B8:borderw=5:fontsize=$FONT_SIZE:x=$PADDING_LEFT:y=(h-text_h)/2 + $INDENT-$UPLIFT,
+    drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART4':fontcolor=#FBF4CC:bordercolor=#F59C04:borderw=5:fontsize=$FONT_SIZE:x=$PADDING_LEFT:y=(h-text_h)/2 + (3*$INDENT-$UPLIFT)" -c:v libx264 -c:a aac -strict experimental "$OUTPUT_DIR/${BASE_NAME}-intro.MP4"
 
     # Extract the rest of the video at correct speed
     ffmpeg -ss $INTRO_LENGTH_SEC -i "$VIDEO_FILE" -filter:v "fps=fps=$FPS" -c:v libx264 -c:a aac "$OUTPUT_DIR/${BASE_NAME}-main.MP4"
