@@ -17,6 +17,28 @@ INPUT_DIR="$1"
 OUTPUT_DIR="$2"
 STORAGE_DIR="$3"
 
+# Define color values
+BLUE="#FBF4CC"
+BLUE_OUTLINE="#0375B8"
+ORANGE="#FBF4CC"
+ORANGE_OUTLINE="#F59C04"
+
+# Create arrays for color and outline pairs
+colors=("$BLUE" "$ORANGE")
+outlines=("$BLUE_OUTLINE" "$ORANGE_OUTLINE")
+
+# Function to assign colors randomly to variables
+assign_colors() {
+    local index=$(shuf -i 0-1 -n 1)  # Generate a random index 0 or 1
+    echo "${colors[$index]}" "${outlines[$index]}"
+}
+
+# Assign colors and outlines to each line independently
+read FIRST_COLOR FIRST_OUTLINE <<< $(assign_colors)
+read SECOND_COLOR SECOND_OUTLINE <<< $(assign_colors)
+read THIRD_COLOR THIRD_OUTLINE <<< $(assign_colors)
+read FOURTH_COLOR FOURTH_OUTLINE <<< $(assign_colors)
+
 # Check if input directory exists
 if [ ! -d "$INPUT_DIR" ]; then
     echo "Error: Input directory '$INPUT_DIR' does not exist."
@@ -104,10 +126,10 @@ for VIDEO_FILE in "$INPUT_DIR"/*.MP4; do
     # Ensure correct video speed by using -filter:v "fps=$FPS" in ffmpeg commands
     ffmpeg -i "$VIDEO_FILE" -t $INTRO_LENGTH_SEC -filter_complex "
     [0:v]fps=fps=$FPS,
-    drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART1':fontcolor=#FBF4CC:bordercolor=#0375B8:borderw=$BORDER_WIDTH:fontsize=$FONT_SIZE:x=$PADDING_LEFT:y=(h-text_h)/2 - (3*$INDENT+$UPLIFT),
-    drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART2':fontcolor=#FBF4CC:bordercolor=#F59C04:borderw=$BORDER_WIDTH:fontsize=$FONT_SIZE:x=$PADDING_LEFT:y=(h-text_h)/2 - $INDENT-$UPLIFT,
-    drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART3':fontcolor=#FBF4CC:bordercolor=#0375B8:borderw=$BORDER_WIDTH:fontsize=$FONT_SIZE:x=$PADDING_LEFT:y=(h-text_h)/2 + $INDENT-$UPLIFT,
-    drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART4':fontcolor=#FBF4CC:bordercolor=#F59C04:borderw=$BORDER_WIDTH:fontsize=$FONT_SIZE:x=$PADDING_LEFT:y=(h-text_h)/2 + (3*$INDENT-$UPLIFT)" -c:v libx264 -c:a aac -strict experimental "$OUTPUT_DIR/${BASE_NAME}-intro.MP4"
+    drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART1':fontcolor=$FIRST_COLOR:bordercolor=$FIRST_OUTLINE:borderw=$BORDER_WIDTH:fontsize=$FONT_SIZE:x=$PADDING_LEFT:y=(h-text_h)/2 - (3*$INDENT+$UPLIFT),
+    drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART2':fontcolor=$SECOND_COLOR:bordercolor=$SECOND_OUTLINE:borderw=$BORDER_WIDTH:fontsize=$FONT_SIZE:x=$PADDING_LEFT:y=(h-text_h)/2 - $INDENT-$UPLIFT,
+    drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART3':fontcolor=$THIRD_COLOR:bordercolor=$THIRD_OUTLINE:borderw=$BORDER_WIDTH:fontsize=$FONT_SIZE:x=$PADDING_LEFT:y=(h-text_h)/2 + $INDENT-$UPLIFT,
+    drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART4':fontcolor=$FOURTH_COLOR:bordercolor=$FOURTH_OUTLINE:borderw=$BORDER_WIDTH:fontsize=$FONT_SIZE:x=$PADDING_LEFT:y=(h-text_h)/2 + (3*$INDENT-$UPLIFT)" -c:v libx264 -c:a aac -strict experimental "$OUTPUT_DIR/${BASE_NAME}-intro.MP4"
 
     # Extract the rest of the video at correct speed
     ffmpeg -ss $INTRO_LENGTH_SEC -i "$VIDEO_FILE" -filter:v "fps=fps=$FPS" -c:v libx264 -c:a aac "$OUTPUT_DIR/${BASE_NAME}-main.MP4"
