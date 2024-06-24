@@ -16,6 +16,7 @@ PADDING_LEFT=120
 INPUT_DIR="$1"
 OUTPUT_DIR="$2"
 STORAGE_DIR="$3"
+TIMESTAMP=$(date +%s%3)
 
 # Define color values
 BLUE="#FBF4CC"
@@ -119,6 +120,16 @@ for VIDEO_FILE in "$INPUT_DIR"/*.MP4; do
     PART3=$(echo "${PART3[@]}" | tr '[:lower:]' '[:upper:]')
     PART4=$(echo "${PART4[@]}" | tr '[:lower:]' '[:upper:]')
 
+    escape_single_quotes() {
+        echo "$1" | sed "s/'/'\\\\\\\\\\\\''/g"
+    }
+
+    # Example usage
+    PART1=$(escape_single_quotes "$PART1")
+    PART2=$(escape_single_quotes "$PART2")
+    PART3=$(escape_single_quotes "$PART3")
+    PART4=$(escape_single_quotes "$PART4")
+
     # Extract the frame rate using ffprobe
     FRAME_RATE=$(ffprobe -v error -select_streams v -show_entries stream=r_frame_rate -of default=noprint_wrappers=1:nokey=1 "$VIDEO_FILE")
     FPS=$(echo "scale=2; $FRAME_RATE" | bc)
@@ -129,18 +140,18 @@ for VIDEO_FILE in "$INPUT_DIR"/*.MP4; do
     drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART1':fontcolor=$FIRST_COLOR:bordercolor=$FIRST_OUTLINE:borderw=$BORDER_WIDTH:fontsize=$FONT_SIZE:x=$PADDING_LEFT:y=(h-text_h)/2 - (3*$INDENT+$UPLIFT),
     drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART2':fontcolor=$SECOND_COLOR:bordercolor=$SECOND_OUTLINE:borderw=$BORDER_WIDTH:fontsize=$FONT_SIZE:x=$PADDING_LEFT:y=(h-text_h)/2 - $INDENT-$UPLIFT,
     drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART3':fontcolor=$THIRD_COLOR:bordercolor=$THIRD_OUTLINE:borderw=$BORDER_WIDTH:fontsize=$FONT_SIZE:x=$PADDING_LEFT:y=(h-text_h)/2 + $INDENT-$UPLIFT,
-    drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART4':fontcolor=$FOURTH_COLOR:bordercolor=$FOURTH_OUTLINE:borderw=$BORDER_WIDTH:fontsize=$FONT_SIZE:x=$PADDING_LEFT:y=(h-text_h)/2 + (3*$INDENT-$UPLIFT)" -c:v libx264 -c:a aac -strict experimental "$OUTPUT_DIR/${BASE_NAME}-intro.MP4"
+    drawtext=fontfile='/System/Library/Fonts/Supplemental/Futura.ttc':text='$PART4':fontcolor=$FOURTH_COLOR:bordercolor=$FOURTH_OUTLINE:borderw=$BORDER_WIDTH:fontsize=$FONT_SIZE:x=$PADDING_LEFT:y=(h-text_h)/2 + (3*$INDENT-$UPLIFT)" -c:v libx264 -c:a aac -strict experimental "$OUTPUT_DIR/${TIMESTAMP}-intro.MP4"
 
     # Extract the rest of the video at correct speed
-    ffmpeg -ss $INTRO_LENGTH_SEC -i "$VIDEO_FILE" -filter:v "fps=fps=$FPS" -c:v libx264 -c:a aac "$OUTPUT_DIR/${BASE_NAME}-main.MP4"
+    ffmpeg -ss $INTRO_LENGTH_SEC -i "$VIDEO_FILE" -filter:v "fps=fps=$FPS" -c:v libx264 -c:a aac "$OUTPUT_DIR/${TIMESTAMP}-main.MP4"
 
     # Concatenate the videos using the concat demuxer
-    echo "file '${BASE_NAME}-intro.MP4'" > "$OUTPUT_DIR/filelist.txt"
-    echo "file '${BASE_NAME}-main.MP4'" >> "$OUTPUT_DIR/filelist.txt"
+    echo "file '${TIMESTAMP}-intro.MP4'" > "$OUTPUT_DIR/filelist.txt"
+    echo "file '${TIMESTAMP}-main.MP4'" >> "$OUTPUT_DIR/filelist.txt"
     ffmpeg -y -f concat -safe 0 -i "$OUTPUT_DIR/filelist.txt" -c:v libx264 -c:a aac "$OUTPUT_DIR/${BASE_NAME}.MP4"
 
     # Remove intermediate files
-    rm "$OUTPUT_DIR/${BASE_NAME}-intro.MP4" "$OUTPUT_DIR/${BASE_NAME}-main.MP4" "$OUTPUT_DIR/filelist.txt"
+    rm "$OUTPUT_DIR/${TIMESTAMP}-intro.MP4" "$OUTPUT_DIR/${TIMESTAMP}-main.MP4" "$OUTPUT_DIR/filelist.txt"
     # Move initial file to storage
     mv "$VIDEO_FILE" $STORAGE_DIR
 done
