@@ -7,7 +7,7 @@ import subprocess
 
 def preprocess_file(input_file, output_file):
     print("Preprocessing '{}' to '{}'".format(input_file, output_file))
-    result = subprocess.run(['ffmpeg', '-i', input_file, '-c:v', 'libx264', '-c:a', 'aac', '-strict', 'experimental', output_file])
+    result = subprocess.run(['ffmpeg', '-i', input_file, '-c:v', 'libx264', '-preset', 'veryslow', '-crf', '22', '-c:a', 'aac', '-b:a', '192k', '-vf', 'fps=30,format=yuv420p', '-movflags', '+faststart', output_file])
     if result.returncode != 0:
         print("Error processing file: {}".format(input_file))
 
