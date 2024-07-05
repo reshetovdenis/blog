@@ -20,7 +20,8 @@ for subdir in $(ls -d "$input_dir"/*/ | sort -V); do
         # Randomly choose one .MP4 file
         random_file=${mp4_files[RANDOM % ${#mp4_files[@]}]}
         # Re-encode the chosen file to ensure uniformity
-        reencoded_file="$temp_dir/$(basename "$random_file")"
+        TIMESTAMP=$(date +%s%3)
+        reencoded_file="$temp_dir/${TIMESTAMP}_$(basename "$random_file")"
         ffmpeg -i "$random_file" -c:v libx264 -preset veryslow -crf 22 -c:a aac -b:a 192k -vf "fps=30,format=yuv420p" -movflags +faststart "$reencoded_file"
         # Add the re-encoded file to the list
         echo "file '$reencoded_file'" >> "$temp_dir/filelist.txt"
