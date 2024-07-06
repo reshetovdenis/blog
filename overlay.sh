@@ -14,8 +14,8 @@ OUTPUT_VIDEO="$3"
 # Calculate the overlay position
 OVERLAY_POSITION="(main_w-overlay_w)/2:(main_h*0.25)"
 
-# Execute the ffmpeg command to overlay the image
-ffmpeg -i "$INPUT_VIDEO" -i "$OVERLAY_IMAGE" -filter_complex "overlay=$OVERLAY_POSITION" -codec:a copy "$OUTPUT_VIDEO"
+# Execute the ffmpeg command to scale the overlay image and add it to the video
+ffmpeg -i "$INPUT_VIDEO" -i "$OVERLAY_IMAGE" -filter_complex "[1:v]scale=iw*2.5:ih*2.5[overlay];[0:v][overlay]overlay=$OVERLAY_POSITION" -codec:a copy "$OUTPUT_VIDEO"
 
 # Check if ffmpeg command was successful
 if [ $? -eq 0 ]; then
