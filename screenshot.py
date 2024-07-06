@@ -11,12 +11,12 @@ import time
 driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
 
 # Open the webpage
-url = 'https://everymac.com/systems/apple/macbook_pro/specs/macbook-pro-core-i5-3.3-13-mid-2017-retina-display-touch-bar-specs.html'
+url = 'https://app.slonig.org/#/knowledge?id=0xd86f01db4b3157dd34268122e6ba45895632e2406b8011c54982024b2180a550'
 driver.get(url)
 
 # Wait for the element to be visible
 wait = WebDriverWait(driver, 10)
-element = wait.until(EC.visibility_of_element_located((By.CLASS_NAME, 'specstop')))
+element = wait.until(EC.visibility_of_element_located((By.CLASS_NAME, 'exercise-display')))
 
 # Scroll the element into view using JavaScript
 driver.execute_script("arguments[0].scrollIntoView(true);", element)
