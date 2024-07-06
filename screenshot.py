@@ -65,6 +65,7 @@ def capture_screenshots(url, class_name, button_tag_name):
 
         if elements and len(elements) > 1:
             button = elements[1].find_element(By.TAG_NAME, button_tag_name)
+            driver.execute_script("arguments[0].scrollIntoView(true);", button)
             button.click()
             time.sleep(2)
             
@@ -84,14 +85,15 @@ def capture_screenshots(url, class_name, button_tag_name):
         for index, element in enumerate(elements):
             for button in element.find_elements(By.TAG_NAME, button_tag_name):
                 driver.execute_script("arguments[0].remove()", button)
-
+            driver.execute_script("arguments[0].scrollIntoView(true);", element)
+            time.sleep(1)
             capture_element_screenshot(driver, element, f"question_{index + 1}.png", '#0375B8', 'left', 'Roboto, sans-serif', '24px')
 
     finally:
         driver.quit()
 
 # Example usage
-url = 'https://app.slonig.org/#/knowledge?id=0x6088f67ab3568193fe57fe81aa8b8763cf53946941444d5c3bc4bc95f0b808c1'
+url = 'https://app.slonig.org/#/knowledge?id=0xb918926eef063ea254fec2f64e39281dc1ddc6519f7297d9e7a0d11d7fd4fab6'
 class_name = 'exercise-display'
 button_tag_name = 'button'
 
