@@ -29,6 +29,8 @@ def inject_styles(driver):
     driver.execute_script(font_injection_script)
 
 def capture_element_screenshot(driver, element, save_path, color, align, font_family, font_size):
+    max_non_overlayed_element_height = 600
+    bottom_menu_height = 70
     driver.execute_script(f"""
         arguments[0].style.color = '{color}';
         arguments[0].style.textAlign = '{align}';
@@ -38,14 +40,16 @@ def capture_element_screenshot(driver, element, save_path, color, align, font_fa
     time.sleep(1)
     image_binary = element.screenshot_as_png
     img = Image.open(io.BytesIO(image_binary))
+    width, height = img.size
+    if height > max_non_overlayed_element_height:
+        height = height - bottom_menu_height
+        img = img.crop((0, 0, width, height))
+
     bordered_img = add_border(add_border(img, border_size=6, color='#FFFFFF'))
     bordered_img.save(save_path)
 
 def capture_screenshots(url, class_name, button_tag_name):
     driver = configure_driver()
-    max_non_overlayed_element_height = 600
-    bottom_menu_height = 70
-    button_width = 30
 
     try:
         driver.get(url)
