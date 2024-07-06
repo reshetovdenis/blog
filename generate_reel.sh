@@ -19,7 +19,16 @@ for subdir in $(ls -d "$input_dir"/*/ | sort -V); do
     if [ "${#mp4_files[@]}" -gt 0 ]; then
         # Randomly choose one .MP4 file
         random_file=${mp4_files[RANDOM % ${#mp4_files[@]}]}
-        echo "file '$random_file'" >> "$temp_dir/filelist.txt"
+        subdir_name=$(basename "$subdir")
+
+        # Check if the subdirectory is 2 or 3 and preprocess if true
+        if [[ "$subdir_name" == "2" || "$subdir_name" == "3" ]]; then
+            processed_file="$temp_dir/processed_$(basename "$random_file")"
+            ./overlay.sh "$random_file" question_1.png "$processed_file"
+            echo "file '$processed_file'" >> "$temp_dir/filelist.txt"
+        else
+            echo "file '$random_file'" >> "$temp_dir/filelist.txt"
+        fi
     fi
 done
 
