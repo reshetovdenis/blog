@@ -28,7 +28,7 @@ def inject_styles(driver):
     """
     driver.execute_script(font_injection_script)
 
-def capture_element_screenshot(driver, element, save_path, color, align, font_family, font_size):
+def capture_element_screenshot(driver, element, save_path, color, align, font_family, font_size, left_crop=0):
     max_non_overlayed_element_height = 600
     bottom_menu_height = 70
     driver.execute_script(f"""
@@ -43,7 +43,7 @@ def capture_element_screenshot(driver, element, save_path, color, align, font_fa
     width, height = img.size
     if height > max_non_overlayed_element_height:
         height = height - bottom_menu_height
-        img = img.crop((0, 0, width, height))
+    img = img.crop((left_crop, 0, width, height))
 
     bordered_img = add_border(add_border(img, border_size=6, color='#FFFFFF'))
     bordered_img.save(save_path)
@@ -82,7 +82,7 @@ def capture_screenshots(url, class_name, button_tag_name):
             """, last_div)
             driver.execute_script("arguments[0].scrollIntoView(true);", last_div)
             time.sleep(1)
-            capture_element_screenshot(driver, last_div, "answer.png", '#0375B8', 'left', 'Roboto, sans-serif', '24px')
+            capture_element_screenshot(driver, last_div, "answer.png", '#0375B8', 'left', 'Roboto, sans-serif', '24px', 30)
             button.click()
             time.sleep(2)
         
