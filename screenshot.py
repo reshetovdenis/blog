@@ -75,7 +75,7 @@ def capture_screenshots(url, class_name, button_tag_name):
                 cropped_img = img.crop((0, 0, width, height))
                 
                 # Add border to the image
-                bordered_img = add_border(cropped_img)
+                bordered_img = add_border(add_border(cropped_img, border_size=6, color='#FFFFFF'))
                 
                 bordered_img.save(f"question_{index + 1}.png")
 
@@ -103,7 +103,7 @@ def capture_screenshots(url, class_name, button_tag_name):
                 cropped_img = img.crop((button_width, 0, width, height))
                 
                 # Add border to the image
-                bordered_img = add_border(cropped_img)
+                bordered_img = add_border(add_border(cropped_img, border_size=6, color='#FFFFFF'))
                 
                 bordered_img.save("answer.png")
         else:
