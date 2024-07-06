@@ -74,6 +74,14 @@ def capture_screenshots(url, class_name, button_tag_name):
                 divs = elements[1].find_elements(By.TAG_NAME, "div")
                 last_div = divs[-1]  # Get the last div
 
+                # Remove the first <i> element inside last_div
+                driver.execute_script("""
+                    var first_italic = arguments[0].querySelector('i');
+                    if (first_italic) {
+                        first_italic.parentNode.removeChild(first_italic);
+                    }
+                """, last_div)
+
                 driver.execute_script("""
                     arguments[0].style.color = '#0375B8';
                     arguments[0].style.textAlign = 'left';
