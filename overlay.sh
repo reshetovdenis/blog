@@ -11,8 +11,8 @@ INPUT_VIDEO="$1"
 OVERLAY_IMAGE="$2"
 OUTPUT_VIDEO="$3"
 
-# Calculate the overlay position
-OVERLAY_POSITION="(main_w-overlay_w)/2:(main_h*0.25)"
+# Calculate the overlay position so that the bottom of the overlay is at 50% of the video height
+OVERLAY_POSITION="(main_w-overlay_w)/2:(main_h*0.63-overlay_h)"
 
 # Execute the ffmpeg command to scale the overlay image and add it to the video
 ffmpeg -i "$INPUT_VIDEO" -i "$OVERLAY_IMAGE" -filter_complex "[1:v]scale=iw*2.5:ih*2.5[overlay];[0:v][overlay]overlay=$OVERLAY_POSITION" -codec:a copy "$OUTPUT_VIDEO"
