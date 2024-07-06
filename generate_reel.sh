@@ -21,10 +21,25 @@ for subdir in $(ls -d "$input_dir"/*/ | sort -V); do
         random_file=${mp4_files[RANDOM % ${#mp4_files[@]}]}
         subdir_name=$(basename "$subdir")
 
-        # Check if the subdirectory is 2 or 3 and preprocess if true
-        if [[ "$subdir_name" == "2" || "$subdir_name" == "3" ]]; then
+        # Determine the overlay based on the subdirectory name
+        case "$subdir_name" in
+            2|3)
+                overlay="question_1.png"
+                ;;
+            7)
+                overlay="question_2.png"
+                ;;
+            11)
+                overlay="answer.png"
+                ;;
+            *)
+                overlay=""
+                ;;
+        esac
+
+        if [ -n "$overlay" ]; then
             processed_file="$temp_dir/processed_$(basename "$random_file")"
-            ./overlay.sh "$random_file" question_1.png "$processed_file"
+            ./overlay.sh "$random_file" "$overlay" "$processed_file"
             echo "file '$processed_file'" >> "$temp_dir/filelist.txt"
         else
             echo "file '$random_file'" >> "$temp_dir/filelist.txt"

@@ -26,11 +26,39 @@ def capture_screenshots(url, class_name, button_tag_name):
     try:
         # Open the webpage
         driver.get(url)
+
+        driver.execute_script("document.documentElement.style.setProperty('--bg-page', '#ffffff');")
+
+        # Inject Futura Medium font into the page
+        font_injection_script = """
+            var font = new FontFace('FuturaMedium', 'url(https://fonts.cdnfonts.com/s/13918/FuturaLT-Book.woff)');
+            document.fonts.add(font);
+            document.body.style.fontFamily = 'FuturaMedium, Arial, sans-serif';
+        """
+        driver.execute_script(font_injection_script)
+        time.sleep(1)
         
         # Wait until the elements are present
         WebDriverWait(driver, 10).until(
             EC.presence_of_all_elements_located((By.CLASS_NAME, class_name))
         )
+
+        # Capture screenshot of the first h1 element
+        h1_element = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.TAG_NAME, 'h1'))
+        )
+        driver.execute_script("""
+            arguments[0].style.color = '#0375B8';
+            arguments[0].style.textAlign = 'center';
+            arguments[0].style.fontFamily = 'FuturaMedium, Arial, sans-serif';
+            arguments[0].style.fontSize = '45px';
+        """, h1_element)
+
+        time.sleep(1)
+        h1_image_binary = h1_element.screenshot_as_png
+        h1_img = Image.open(io.BytesIO(h1_image_binary))
+        h1_bordered_img = add_border(add_border(h1_img, border_size=6, color='#FFFFFF'))
+        h1_bordered_img.save("header.png")
 
         # Find all elements with the given class name
         elements = driver.find_elements(By.CLASS_NAME, class_name)
@@ -85,7 +113,8 @@ def capture_screenshots(url, class_name, button_tag_name):
         driver.quit()
 
 # Example usage
-url = 'https://app.slonig.org/#/knowledge?id=0xd86f01db4b3157dd34268122e6ba45895632e2406b8011c54982024b2180a550'
+url = 'https://app.slonig.org/#/knowledge?id=0xde25f95b5ed1e15318f1dadcf5b64c3e6f4b33d685f81247b490ad4efb206343'
+#url = 'https://app.slonig.org/#/knowledge?id=0xd86f01db4b3157dd34268122e6ba45895632e2406b8011c54982024b2180a550'
 #url = 'https://app.slonig.org/#/knowledge?id=0x10bddf453ccd8118d85521ac958e6fd8ff133d688f326d4ff36e301a638c28fe'
 
 class_name = 'exercise-display'
