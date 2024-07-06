@@ -9,8 +9,9 @@ fi
 input_dir=$1
 output_file=$2
 
-# Create a temporary directory for re-encoded files
-temp_dir=$(mktemp -d)
+global_timestamp=$(date +%s)
+temp_dir="$HOME/tmp/video_generation_$global_timestamp"
+mkdir -p "$temp_dir"
 
 # Iterate through numerically sorted subdirectories
 for subdir in $(ls -d "$input_dir"/*/ | sort -V); do
@@ -40,8 +41,10 @@ for subdir in $(ls -d "$input_dir"/*/ | sort -V); do
                 ;;
         esac
 
+        file_timestamp=$(date +%s%N)
+
         if [ -n "$overlay" ]; then
-            processed_file="$temp_dir/processed_$(basename "$random_file")"
+            processed_file="$temp_dir/processed_${file_timestamp}_$(basename "$random_file")"
             ./overlay.sh "$random_file" "$overlay" "$processed_file"
             echo "file '$processed_file'" >> "$temp_dir/filelist.txt"
         else
