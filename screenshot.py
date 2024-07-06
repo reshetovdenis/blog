@@ -5,9 +5,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from PIL import Image
+from PIL import Image, ImageOps
 import io
 import time
+
+def add_border(image, border_size=6, color='#F59C04'):
+    return ImageOps.expand(image, border=border_size, fill=color)
 
 def capture_screenshots(url, class_name, button_tag_name):
     # Configure Selenium to use Chrome
@@ -42,7 +45,11 @@ def capture_screenshots(url, class_name, button_tag_name):
                 if height > max_non_overlayed_element_height:
                     height = height - bottom_menu_height
                 cropped_img = img.crop((0, 0, width, height))
-                cropped_img.save(f"question_{index + 1}.png")
+                
+                # Add border to the image
+                bordered_img = add_border(cropped_img)
+                
+                bordered_img.save(f"question_{index + 1}.png")
 
             if len(elements) > 1:
                 # Click the button inside the second element
@@ -67,7 +74,10 @@ def capture_screenshots(url, class_name, button_tag_name):
                     height = height - bottom_menu_height
                 cropped_img = img.crop((button_width, 0, width, height))
                 
-                cropped_img.save("answer.png")
+                # Add border to the image
+                bordered_img = add_border(cropped_img)
+                
+                bordered_img.save("answer.png")
         else:
             print("No elements found with the specified class name.")
 
