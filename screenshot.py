@@ -96,7 +96,16 @@ def capture_screenshots(url, class_name, button_tag_name):
             for index, element in enumerate(elements):
                 buttons = element.find_elements(By.TAG_NAME, button_tag_name)
                 for button in buttons:
-                    driver.execute_script("arguments[0].style.visibility='hidden'", button)
+                    driver.execute_script("arguments[0].remove()", button)
+
+                driver.execute_script("""
+                    arguments[0].style.color = '#0375B8';
+                    arguments[0].style.textAlign = 'left';
+                    arguments[0].style.fontFamily = 'FuturaMedium, Arial, sans-serif';
+                    arguments[0].style.fontSize = '24px';
+                """, element)
+
+                time.sleep(1)
                 # Capture screenshot of each element
                 image_binary = element.screenshot_as_png 
                 img = Image.open(io.BytesIO(image_binary))
