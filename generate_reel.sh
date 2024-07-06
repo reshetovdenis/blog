@@ -26,15 +26,19 @@ for subdir in $(ls -d "$input_dir"/*/ | sort -V); do
         case "$subdir_name" in
             1)
                 overlay="header.png"
+                shift_left=0
                 ;;
             2|3)
                 overlay="question_1.png"
+                shift_left=75
                 ;;
             7)
                 overlay="question_2.png"
+                shift_left=75
                 ;;
             11)
                 overlay="answer.png"
+                shift_left=75
                 ;;
             *)
                 overlay=""
@@ -45,7 +49,7 @@ for subdir in $(ls -d "$input_dir"/*/ | sort -V); do
 
         if [ -n "$overlay" ]; then
             processed_file="$temp_dir/processed_${file_timestamp}_$(basename "$random_file")"
-            ./overlay.sh "$random_file" "$overlay" "$processed_file"
+            ./overlay.sh "$random_file" "$overlay" "$processed_file" "$shift_left"
             echo "file '$processed_file'" >> "$temp_dir/filelist.txt"
         else
             echo "file '$random_file'" >> "$temp_dir/filelist.txt"
