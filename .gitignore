@@ -2,7 +2,4 @@ output.mp4
 input/
 output/
 with_covers/
-element_screenshot.png
-full_screenshot.png
-katex_output.png
-image.png
+*.png
