@@ -64,21 +64,6 @@ def capture_screenshots(url, class_name, button_tag_name):
         elements = driver.find_elements(By.CLASS_NAME, class_name)
 
         if elements:
-            for index, element in enumerate(elements):
-                # Capture screenshot of each element
-                image_binary = element.screenshot_as_png 
-                img = Image.open(io.BytesIO(image_binary))
-                
-                width, height = img.size
-                if height > max_non_overlayed_element_height:
-                    height = height - bottom_menu_height
-                cropped_img = img.crop((0, 0, width, height))
-                
-                # Add border to the image
-                bordered_img = add_border(add_border(cropped_img, border_size=6, color='#FFFFFF'))
-                
-                bordered_img.save(f"question_{index + 1}.png")
-
             if len(elements) > 1:
                 # Click the button inside the second element
                 button = elements[1].find_element(By.TAG_NAME, button_tag_name)
@@ -104,8 +89,27 @@ def capture_screenshots(url, class_name, button_tag_name):
                 
                 # Add border to the image
                 bordered_img = add_border(add_border(cropped_img, border_size=6, color='#FFFFFF'))
-                
                 bordered_img.save("answer.png")
+                button.click()
+                time.sleep(2)
+            
+            for index, element in enumerate(elements):
+                buttons = element.find_elements(By.TAG_NAME, button_tag_name)
+                for button in buttons:
+                    driver.execute_script("arguments[0].style.visibility='hidden'", button)
+                # Capture screenshot of each element
+                image_binary = element.screenshot_as_png 
+                img = Image.open(io.BytesIO(image_binary))
+                
+                width, height = img.size
+                if height > max_non_overlayed_element_height:
+                    height = height - bottom_menu_height
+                cropped_img = img.crop((0, 0, width, height))
+                
+                # Add border to the image
+                bordered_img = add_border(add_border(cropped_img, border_size=6, color='#FFFFFF'))
+                
+                bordered_img.save(f"question_{index + 1}.png")
         else:
             print("No elements found with the specified class name.")
 
