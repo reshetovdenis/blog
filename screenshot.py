@@ -73,6 +73,13 @@ def capture_screenshots(url, class_name, button_tag_name):
                 time.sleep(2)  # Wait for any changes to take effect after the click
                 divs = elements[1].find_elements(By.TAG_NAME, "div")
                 last_div = divs[-1]  # Get the last div
+
+                driver.execute_script("""
+                    arguments[0].style.color = '#0375B8';
+                    arguments[0].style.textAlign = 'left';
+                    arguments[0].style.fontFamily = 'FuturaMedium, Arial, sans-serif';
+                    arguments[0].style.fontSize = '24px';
+                """, last_div)
                 
                 # Scroll the last div to the top of the page
                 driver.execute_script("arguments[0].scrollIntoView(true);", last_div)
