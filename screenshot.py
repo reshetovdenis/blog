@@ -16,6 +16,9 @@ def capture_screenshots(url, class_name, button_tag_name):
     chrome_options.add_argument("--window-size=414,896")
     chrome_options.add_argument("--lang=en-US")
     driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=chrome_options)
+    max_non_overlayed_element_height = 600
+    bottom_menu_height = 70
+    button_width = 30
 
     try:
         # Open the webpage
@@ -34,7 +37,12 @@ def capture_screenshots(url, class_name, button_tag_name):
                 # Capture screenshot of each element
                 image_binary = element.screenshot_as_png 
                 img = Image.open(io.BytesIO(image_binary))
-                img.save(f"question_{index + 1}.png")
+                
+                width, height = img.size
+                if height > max_non_overlayed_element_height:
+                    height = height - bottom_menu_height
+                cropped_img = img.crop((0, 0, width, height))
+                cropped_img.save(f"question_{index + 1}.png")
 
             if len(elements) > 1:
                 # Click the button inside the second element
@@ -53,7 +61,13 @@ def capture_screenshots(url, class_name, button_tag_name):
                 # Capture screenshot of the last div
                 image_binary = last_div.screenshot_as_png 
                 img = Image.open(io.BytesIO(image_binary))
-                img.save("answer.png")
+                
+                width, height = img.size
+                if height > max_non_overlayed_element_height:
+                    height = height - bottom_menu_height
+                cropped_img = img.crop((button_width, 0, width, height))
+                
+                cropped_img.save("answer.png")
         else:
             print("No elements found with the specified class name.")
 
@@ -61,8 +75,8 @@ def capture_screenshots(url, class_name, button_tag_name):
         driver.quit()
 
 # Example usage
-#url = 'https://app.slonig.org/#/knowledge?id=0xd86f01db4b3157dd34268122e6ba45895632e2406b8011c54982024b2180a550'
-url = 'https://app.slonig.org/#/knowledge?id=0x10bddf453ccd8118d85521ac958e6fd8ff133d688f326d4ff36e301a638c28fe'
+url = 'https://app.slonig.org/#/knowledge?id=0xd86f01db4b3157dd34268122e6ba45895632e2406b8011c54982024b2180a550'
+#url = 'https://app.slonig.org/#/knowledge?id=0x10bddf453ccd8118d85521ac958e6fd8ff133d688f326d4ff36e301a638c28fe'
 
 class_name = 'exercise-display'
 button_tag_name = 'button'  # Update this with the correct tag name for the button if it's not 'button'
