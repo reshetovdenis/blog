@@ -22,9 +22,9 @@ def configure_driver():
 def inject_styles(driver):
     driver.execute_script("document.documentElement.style.setProperty('--bg-page', '#ffffff');")
     font_injection_script = """
-        var font = new FontFace('FuturaMedium', 'url(https://fonts.cdnfonts.com/s/13918/FuturaLT-Book.woff)');
+        var font = new FontFace('Roboto', 'url(https://fonts.gstatic.com/s/roboto/v27/KFOmCnqEu92Fr1Mu4mxP.ttf)');
         document.fonts.add(font);
-        document.body.style.fontFamily = 'FuturaMedium, Arial, sans-serif';
+        document.body.style.fontFamily = 'Roboto, Arial, sans-serif';
     """
     driver.execute_script(font_injection_script)
 
@@ -59,7 +59,7 @@ def capture_screenshots(url, class_name, button_tag_name):
         h1_element = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.TAG_NAME, 'h1'))
         )
-        capture_element_screenshot(driver, h1_element, "header.png", '#0375B8', 'center', 'FuturaMedium, Arial, sans-serif', '45px')
+        capture_element_screenshot(driver, h1_element, "header.png", '#0375B8', 'center', 'Roboto, Arial, sans-serif', '45px')
 
         elements = driver.find_elements(By.CLASS_NAME, class_name)
 
@@ -77,7 +77,7 @@ def capture_screenshots(url, class_name, button_tag_name):
             """, last_div)
             driver.execute_script("arguments[0].scrollIntoView(true);", last_div)
             time.sleep(1)
-            capture_element_screenshot(driver, last_div, "answer.png", '#0375B8', 'left', 'FuturaMedium, Arial, sans-serif', '24px')
+            capture_element_screenshot(driver, last_div, "answer.png", '#0375B8', 'left', 'Roboto, Arial, sans-serif', '24px')
             button.click()
             time.sleep(2)
         
@@ -85,7 +85,7 @@ def capture_screenshots(url, class_name, button_tag_name):
             for button in element.find_elements(By.TAG_NAME, button_tag_name):
                 driver.execute_script("arguments[0].remove()", button)
 
-            capture_element_screenshot(driver, element, f"question_{index + 1}.png", '#0375B8', 'left', 'FuturaMedium, Arial, sans-serif', '24px')
+            capture_element_screenshot(driver, element, f"question_{index + 1}.png", '#0375B8', 'left', 'Roboto, Arial, sans-serif', '24px')
 
     finally:
         driver.quit()
