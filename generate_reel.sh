@@ -23,6 +23,9 @@ for subdir in $(ls -d "$input_dir"/*/ | sort -V); do
 
         # Determine the overlay based on the subdirectory name
         case "$subdir_name" in
+            1)
+                overlay="header.png"
+                ;;
             2|3)
                 overlay="question_1.png"
                 ;;

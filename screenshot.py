@@ -91,7 +91,7 @@ def capture_screenshots(url, class_name, button_tag_name):
         driver.quit()
 
 # Example usage
-url = 'https://app.slonig.org/#/knowledge?id=0xde25f95b5ed1e15318f1dadcf5b64c3e6f4b33d685f81247b490ad4efb206343'
+url = 'https://app.slonig.org/#/knowledge?id=0x6088f67ab3568193fe57fe81aa8b8763cf53946941444d5c3bc4bc95f0b808c1'
 class_name = 'exercise-display'
 button_tag_name = 'button'
 
