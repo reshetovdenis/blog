@@ -2,6 +2,10 @@ import os
 import sys
 import subprocess
 
+def get_video_duration(input_file):
+    result = subprocess.run(['ffprobe', '-i', input_file, '-show_entries', 'format=duration', '-v', 'quiet', '-of', 'csv=p=0'], capture_output=True, text=True)
+    return result.stdout.strip()
+
 def preprocess_file(input_file, output_file):
     print("Preprocessing '{}' to '{}'".format(input_file, output_file))
     # Step 1: Extract audio from the video
@@ -25,12 +29,14 @@ def preprocess_file(input_file, output_file):
             if 'silence_start' in line:
                 end_silence = line.split()[4]
                 break
+
+    # Step 4: Set default values if silence points are not found
+    if not start_silence:
+        start_silence = '0'
+    if not end_silence:
+        end_silence = get_video_duration(input_file)
     
-    if not start_silence or not end_silence:
-        print("Could not find silence points in the log.")
-        return
-    
-    # Step 4: Trim the video based on detected silence points
+    # Step 5: Trim the video based on detected silence points
     result = subprocess.run([
         'ffmpeg', '-i', input_file, '-c:v', 'libx264', '-preset', 'veryslow', '-crf', '22', 
         '-c:a', 'aac', '-b:a', '192k', '-vf', 'fps=30,format=yuv420p', '-movflags', '+faststart', 
@@ -39,7 +45,7 @@ def preprocess_file(input_file, output_file):
     
     # Clean up temporary files
     os.remove(temp_audio)
-    os.remove(silence_log)
+    #os.remove(silence_log)
     
     if result.returncode != 0:
         print("Error processing file: {}".format(input_file))
