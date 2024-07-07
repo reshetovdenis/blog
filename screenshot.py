@@ -1,3 +1,4 @@
+import argparse
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
@@ -96,9 +97,11 @@ def capture_screenshots(url, class_name, button_tag_name):
     finally:
         driver.quit()
 
-# Example usage
-url = 'https://app.slonig.org/#/knowledge?id=0xdefab6cea51823d1a17b8391625c6a51893e0107512fca295cd1aa93996f9697'
-class_name = 'exercise-display'
-button_tag_name = 'button'
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Capture screenshots from a webpage.")
+    parser.add_argument("url", type=str, help="The URL of the webpage to capture screenshots from.")
+    parser.add_argument("--class_name", type=str, default="exercise-display", help="The class name of the elements to capture.")
+    parser.add_argument("--button_tag_name", type=str, default="button", help="The tag name of the button elements.")
+    args = parser.parse_args()
 
-capture_screenshots(url, class_name, button_tag_name)
+    capture_screenshots(args.url, args.class_name, args.button_tag_name)
