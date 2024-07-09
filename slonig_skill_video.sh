@@ -8,7 +8,7 @@ fi
 
 URL=$1
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-OUTPUT_FILE="~/tmp/slonig_${TIMESTAMP}.MP4"
+OUTPUT_FILE="/Users/adr/tmp/slonig_${TIMESTAMP}.MP4"
 
 # Run the screenshot.py script with the provided URL
 ./screenshot.py "$URL"
