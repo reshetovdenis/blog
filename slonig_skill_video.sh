@@ -20,7 +20,8 @@ if [ $? -ne 0 ]; then
 fi
 
 # Run the generate_reel.sh script with the temporary directory and the output file
-./generate_reel.sh ~/localGoogleDrive/Instagram/reels/eng/slonig/location_recoded/3_short/ "$OUTPUT_FILE"
+#./generate_reel.sh ~/localGoogleDrive/Instagram/reels/eng/slonig/location_recoded/3_short/ "$OUTPUT_FILE"
+./generate_reel.sh /Users/adr/localGoogleDrive/Instagram/reels/eng/slonig/location/2_recoded/ "$OUTPUT_FILE"
 
 # Check if generate_reel.sh ran successfully
 if [ $? -ne 0 ]; then
