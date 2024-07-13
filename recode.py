@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import os
 import sys
 import subprocess
@@ -43,7 +44,7 @@ def preprocess_file(input_file, output_file):
     # Step 4: Trim the video based on detected silence points
     result = subprocess.run([
         'ffmpeg', '-loglevel', 'quiet', '-i', input_file, '-c:v', 'libx264', '-preset', 'veryslow', '-crf', '22', 
-        '-c:a', 'aac', '-b:a', '192k', '-vf', 'fps=30,format=yuv420p', '-movflags', '+faststart', 
+        '-c:a', 'aac', '-b:a', '192k', '-af', 'volume=10dB', '-vf', 'fps=30,format=yuv420p', '-movflags', '+faststart', 
         '-ss', str(start_silence), '-to', str(end_silence), output_file
     ])
     
