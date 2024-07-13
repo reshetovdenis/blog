@@ -7,7 +7,7 @@ def get_video_duration(input_file):
     result = subprocess.run(['ffprobe', '-loglevel', 'quiet', '-i', input_file, '-show_entries', 'format=duration', '-v', 'quiet', '-of', 'csv=p=0'], capture_output=True, text=True)
     return result.stdout.strip()
 
-def preprocess_file(input_file, output_file):
+def preprocess_file(input_file, output_file, dB, speed):
     print("Preprocessing '{}' to '{}'".format(input_file, output_file))
     # Step 1: Extract audio from the video
     temp_audio = output_file + '.wav'
@@ -43,8 +43,12 @@ def preprocess_file(input_file, output_file):
     
     # Step 4: Trim the video based on detected silence points
     result = subprocess.run([
-        'ffmpeg', '-loglevel', 'quiet', '-i', input_file, '-c:v', 'libx264', '-preset', 'veryslow', '-crf', '22', 
-        '-c:a', 'aac', '-b:a', '192k', '-af', 'volume=10dB', '-vf', 'fps=30,format=yuv420p', '-movflags', '+faststart', 
+        'ffmpeg', '-loglevel', 'quiet', '-i', input_file, 
+        '-c:v', 'libx264', '-preset', 'veryslow', '-crf', '22', 
+        '-c:a', 'aac', '-b:a', '192k', 
+        '-af', f'volume={dB}dB,atempo={speed}',
+        '-vf', f'fps=30,format=yuv420p,setpts=PTS/{speed}',
+        '-movflags', '+faststart', 
         '-ss', str(start_silence), '-to', str(end_silence), output_file
     ])
     
@@ -55,7 +59,7 @@ def preprocess_file(input_file, output_file):
     if result.returncode != 0:
         print("Error processing file: {}".format(input_file))
 
-def main(input_dir, output_dir):
+def main(input_dir, output_dir, dB, speed):
     # Ensure there is no trailing slash in input_dir and output_dir
     input_dir = input_dir.rstrip('/')
     output_dir = output_dir.rstrip('/')
@@ -72,14 +76,16 @@ def main(input_dir, output_dir):
                 os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
                 # Preprocess the file
-                preprocess_file(input_file, output_file)
+                preprocess_file(input_file, output_file, dB, speed)
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: python process_videos.py <input_dir> <output_dir>")
+    if len(sys.argv) != 5:
+        print("Usage: python process_videos.py <input_dir> <output_dir> <dB> <speed>")
         sys.exit(1)
 
     input_dir = sys.argv[1]
     output_dir = sys.argv[2]
+    dB = sys.argv[3]
+    speed = sys.argv[4]
 
-    main(input_dir, output_dir)
+    main(input_dir, output_dir, dB, speed)
