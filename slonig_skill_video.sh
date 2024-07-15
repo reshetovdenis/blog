@@ -19,9 +19,42 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Run the generate_reel.sh script with the temporary directory and the output file
-#./generate_reel.sh ~/localGoogleDrive/Instagram/reels/eng/slonig/location_recoded/3_short/ "$OUTPUT_FILE"
-./generate_reel.sh /Users/adr/localGoogleDrive/Instagram/reels/eng/slonig/location/2_recoded/ "$OUTPUT_FILE"
+# Array of folders to be used as parameter for generate_reel.sh
+FOLDERS=(
+    "/Users/adr/localGoogleDrive/Instagram/reels/eng/slonig/location_recoded/2/"
+    "/Users/adr/localGoogleDrive/Instagram/reels/eng/slonig/location_recoded/3/"
+)
+
+# Check if the folders array is empty
+if [ ${#FOLDERS[@]} -eq 0 ]; then
+    echo "Error: Folders array is empty."
+    exit 1
+fi
+
+# Temporary cache file to store the last used folder index
+CACHE_FILE="./last_used_folder_index.txt"
+
+# Read the last used folder index from the cache file
+if [ -f "$CACHE_FILE" ]; then
+    LAST_USED_INDEX=$(cat "$CACHE_FILE")
+else
+    LAST_USED_INDEX=-1
+fi
+
+# Determine the next folder index
+if [ "$LAST_USED_INDEX" -ge $((${#FOLDERS[@]} - 1)) ]; then
+    NEXT_INDEX=0
+else
+    NEXT_INDEX=$((LAST_USED_INDEX + 1))
+fi
+
+# Store the next index in the cache file
+echo "$NEXT_INDEX" > "$CACHE_FILE"
+
+# Get the next folder path
+NEXT_FOLDER=${FOLDERS[$NEXT_INDEX]}
+
+./generate_reel.sh "$NEXT_FOLDER" "$OUTPUT_FILE"
 
 # Check if generate_reel.sh ran successfully
 if [ $? -ne 0 ]; then

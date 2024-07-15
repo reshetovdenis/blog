@@ -12,6 +12,7 @@ output_file=$2
 global_timestamp=$(date +%s)
 temp_dir="$HOME/tmp/video_generation_$global_timestamp"
 mkdir -p "$temp_dir"
+modulo_index=$(($(date +%j) % 5))
 
 # Iterate through numerically sorted subdirectories
 for subdir in $(ls -d "$input_dir"/*/ | sort -V); do
@@ -19,8 +20,17 @@ for subdir in $(ls -d "$input_dir"/*/ | sort -V); do
     mp4_files=("$subdir"*.MP4)
     if [ "${#mp4_files[@]}" -gt 0 ]; then
         # Randomly choose one .MP4 file
-        random_file=${mp4_files[RANDOM % ${#mp4_files[@]}]}
+        
         subdir_name=$(basename "$subdir")
+
+        if [ "$subdir_name" -eq 1 ]; then
+            # Pseudorandomly choose one .MP4 file for the first directory
+            random_index=$((modulo_index % ${#mp4_files[@]}))
+            random_file=${mp4_files[$random_index]}
+        else
+            # Randomly choose one .MP4 file for other directories
+            random_file=${mp4_files[RANDOM % ${#mp4_files[@]}]}
+        fi
 
         # Determine the overlay based on the subdirectory name
         case "$subdir_name" in
