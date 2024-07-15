@@ -37,36 +37,31 @@ for subdir in $(ls -d "$input_dir"/*/ | sort -V); do
         case "$subdir_name" in
             1)
                 overlay=""
-                add_header=$header
                 #overlay="header.png"
                 #shift_left=0
                 ;;
             2|3)
                 overlay="question_1.png"
                 shift_left=75
-                add_header=""
                 ;;
             7)
                 overlay="question_2.png"
                 shift_left=75
-                add_header=""
                 ;;
             11)
                 overlay="answer.png"
                 shift_left=75
-                add_header=""
                 ;;
             *)
                 overlay=""
-                add_header=""
                 ;;
         esac
 
         file_timestamp=$(date +%s%N)
 
-        if [ -n "$add_header" ]; then
+        if [ "$subdir_name" = "1" ]; then
             processed_file="$temp_dir/processed_${file_timestamp}_$(basename "$random_file")"
-            ./overlay_text.sh "$random_file" "$processed_file" "$add_header"
+            ./overlay_text.sh "$random_file" "$processed_file" "$header"
             echo "file '$processed_file'" >> "$temp_dir/filelist.txt"
         else
             if [ -n "$overlay" ]; then
