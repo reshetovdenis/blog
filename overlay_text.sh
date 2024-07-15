@@ -113,7 +113,7 @@ PART2=$(escape_single_quotes "$PART2")
 PART3=$(escape_single_quotes "$PART3")
 PART4=$(escape_single_quotes "$PART4")
 
-ffmpeg -i "$INPUT_VIDEO" -filter_complex "
+ffmpeg -loglevel quiet -i "$INPUT_VIDEO" -filter_complex "
 [0:v]
 drawtext=fontfile='./roboto.ttf':text='$PART1':fontcolor=$FIRST_COLOR:bordercolor=$FIRST_OUTLINE:borderw=$BORDER_WIDTH:fontsize=$FONT_SIZE:x=$PADDING_LEFT:y=(h-text_h)/2 - (3*$INDENT+$UPLIFT),
 drawtext=fontfile='./roboto.ttf':text='$PART2':fontcolor=$SECOND_COLOR:bordercolor=$SECOND_OUTLINE:borderw=$BORDER_WIDTH:fontsize=$FONT_SIZE:x=$PADDING_LEFT:y=(h-text_h)/2 - $INDENT-$UPLIFT,

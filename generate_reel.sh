@@ -83,7 +83,7 @@ if [ ! -s "$temp_dir/filelist.txt" ]; then
 fi
 
 # Use ffmpeg to concatenate the re-encoded files with a specified frame rate
-ffmpeg -y -f concat -safe 0 -i "$temp_dir/filelist.txt" -c:v libx264 -c:a aac "$output_file"
+ffmpeg -loglevel quiet -y -f concat -safe 0 -i "$temp_dir/filelist.txt" -c:v libx264 -c:a aac "$output_file"
 
 # Clean up the temporary directory
 rm -rf "$temp_dir"

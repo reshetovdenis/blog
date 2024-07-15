@@ -32,7 +32,7 @@ fi
 
 
 # Execute the ffmpeg command to scale the overlay image and add it to the video
-ffmpeg -i "$INPUT_VIDEO" -i "$OVERLAY_IMAGE" -filter_complex "[1:v]$OVERLAY_FILTER[overlay];[0:v][overlay]overlay=$OVERLAY_POSITION" -codec:a copy "$OUTPUT_VIDEO"
+ffmpeg -loglevel quiet -i "$INPUT_VIDEO" -i "$OVERLAY_IMAGE" -filter_complex "[1:v]$OVERLAY_FILTER[overlay];[0:v][overlay]overlay=$OVERLAY_POSITION" -codec:a copy "$OUTPUT_VIDEO"
 
 # Check if ffmpeg command was successful
 if [ $? -eq 0 ]; then
