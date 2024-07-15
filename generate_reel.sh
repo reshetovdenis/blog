@@ -1,13 +1,14 @@
 #!/bin/bash
 
 # Check if the correct number of arguments are provided
-if [ "$#" -ne 2 ]; then
-    echo "Usage: $0 <directory> <outputfile>"
+if [ "$#" -ne 3 ]; then
+    echo "Usage: $0 <directory> <outputfile> <header>"
     exit 1
 fi
 
 input_dir=$1
 output_file=$2
+header=$3
 
 global_timestamp=$(date +%s)
 temp_dir="$HOME/tmp/video_generation_$global_timestamp"
@@ -35,34 +36,46 @@ for subdir in $(ls -d "$input_dir"/*/ | sort -V); do
         # Determine the overlay based on the subdirectory name
         case "$subdir_name" in
             1)
-                overlay="header.png"
-                shift_left=0
+                overlay=""
+                add_header=$header
+                #overlay="header.png"
+                #shift_left=0
                 ;;
             2|3)
                 overlay="question_1.png"
                 shift_left=75
+                add_header=""
                 ;;
             7)
                 overlay="question_2.png"
                 shift_left=75
+                add_header=""
                 ;;
             11)
                 overlay="answer.png"
                 shift_left=75
+                add_header=""
                 ;;
             *)
                 overlay=""
+                add_header=""
                 ;;
         esac
 
         file_timestamp=$(date +%s%N)
 
-        if [ -n "$overlay" ]; then
+        if [ -n "$add_header" ]; then
             processed_file="$temp_dir/processed_${file_timestamp}_$(basename "$random_file")"
-            ./overlay.sh "$random_file" "$overlay" "$processed_file" "$shift_left"
+            ./overlay_text.sh "$random_file" "$processed_file" "$add_header"
             echo "file '$processed_file'" >> "$temp_dir/filelist.txt"
         else
-            echo "file '$random_file'" >> "$temp_dir/filelist.txt"
+            if [ -n "$overlay" ]; then
+                processed_file="$temp_dir/processed_${file_timestamp}_$(basename "$random_file")"
+                ./overlay.sh "$random_file" "$overlay" "$processed_file" "$shift_left"
+                echo "file '$processed_file'" >> "$temp_dir/filelist.txt"
+            else
+                echo "file '$random_file'" >> "$temp_dir/filelist.txt"
+            fi
         fi
     fi
 done

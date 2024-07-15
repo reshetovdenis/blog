@@ -1,12 +1,13 @@
 #!/bin/bash
 
 # Check if the correct number of arguments is provided
-if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 <URL>"
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <URL> <HEADER>"
     exit 1
 fi
 
 URL=$1
+HEADER=$2
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 OUTPUT_FILE="/Users/adr/tmp/slonig_${TIMESTAMP}.MP4"
 
@@ -54,7 +55,7 @@ echo "$NEXT_INDEX" > "$CACHE_FILE"
 # Get the next folder path
 NEXT_FOLDER=${FOLDERS[$NEXT_INDEX]}
 
-./generate_reel.sh "$NEXT_FOLDER" "$OUTPUT_FILE"
+./generate_reel.sh "$NEXT_FOLDER" "$OUTPUT_FILE" "$HEADER"
 
 # Check if generate_reel.sh ran successfully
 if [ $? -ne 0 ]; then
