@@ -14,7 +14,7 @@ BASE_NAME="$3"
 INTRO_LENGTH_SEC=0.5
 FONT_SIZE=140
 BORDER_WIDTH=8
-CHAR_LIMIT=9
+CHAR_LIMIT=10
 INDENT=75
 UPLIFT=95
 PADDING_LEFT=120
@@ -44,57 +44,64 @@ read FOURTH_COLOR FOURTH_OUTLINE <<< $(assign_colors)
 
 # Split the base name into words
 IFS=' ' read -r -a WORDS <<< "$BASE_NAME"
-TOTAL_CHARS=0
 PART1=""
 PART2=""
 PART3=""
 PART4=""
+CURRENT_PART=1
+CURRENT_CHARS=0
 
 # Define the limit of characters across all parts
 for word in "${WORDS[@]}"; do
-    # Calculate the length of the current word plus a space (if it's not the first word in the part)
     WORD_LENGTH=${#word}
-    [ -n "$PART1" ] && WORD_LENGTH=$((WORD_LENGTH + 1))
-    
-    # Assign words to parts until the character limit is reached
-    if [ $((TOTAL_CHARS + WORD_LENGTH)) -le $CHAR_LIMIT ]; then
-        if [ -n "$PART1" ]; then
-            PART1="$PART1 $word"
-        else
-            PART1="$word"
-        fi
-        TOTAL_CHARS=$((TOTAL_CHARS + WORD_LENGTH))
-    elif [ $((TOTAL_CHARS + WORD_LENGTH)) -le $((2 * CHAR_LIMIT)) ]; then
-        if [ -n "$PART2" ]; then
-            PART2="$PART2 $word"
-        else
-            PART2="$word"
-        fi
-        TOTAL_CHARS=$((TOTAL_CHARS + WORD_LENGTH))
-    elif [ $((TOTAL_CHARS + WORD_LENGTH)) -le $((3 * CHAR_LIMIT)) ]; then
-        if [ -n "$PART3" ] && [ -n "$PART3" ]; then
-            PART3="$PART3 $word"
-        else
-            PART3="$word"
-        fi
-        TOTAL_CHARS=$((TOTAL_CHARS + WORD_LENGTH))
-    elif [ $((TOTAL_CHARS + WORD_LENGTH)) -le $((4 * CHAR_LIMIT)) ]; then
-        if [ -n "$PART4" ] && [ -n "$PART4" ]; then
-            PART4="$PART4 $word"
-        else
-            PART4="$word"
-        fi
-        TOTAL_CHARS=$((TOTAL_CHARS + WORD_LENGTH))
-    else
-        break  # Stop adding words if the limit for all parts is reached
-    fi
+    case $CURRENT_PART in
+        1)
+            if [ $((CURRENT_CHARS + WORD_LENGTH)) -le $CHAR_LIMIT ]; then
+                [ -n "$PART1" ] && PART1="$PART1 $word" || PART1="$word"
+                CURRENT_CHARS=$((CURRENT_CHARS + WORD_LENGTH + 1))
+            else
+                CURRENT_PART=2
+                CURRENT_CHARS=0
+                PART2="$word"
+                CURRENT_CHARS=$((WORD_LENGTH + 1))
+            fi
+            ;;
+        2)
+            if [ $((CURRENT_CHARS + WORD_LENGTH)) -le $CHAR_LIMIT ]; then
+                [ -n "$PART2" ] && PART2="$PART2 $word" || PART2="$word"
+                CURRENT_CHARS=$((CURRENT_CHARS + WORD_LENGTH + 1))
+            else
+                CURRENT_PART=3
+                CURRENT_CHARS=0
+                PART3="$word"
+                CURRENT_CHARS=$((WORD_LENGTH + 1))
+            fi
+            ;;
+        3)
+            if [ $((CURRENT_CHARS + WORD_LENGTH)) -le $CHAR_LIMIT ]; then
+                [ -n "$PART3" ] && PART3="$PART3 $word" || PART3="$word"
+                CURRENT_CHARS=$((CURRENT_CHARS + WORD_LENGTH + 1))
+            else
+                CURRENT_PART=4
+                CURRENT_CHARS=0
+                PART4="$word"
+                CURRENT_CHARS=$((WORD_LENGTH + 1))
+            fi
+            ;;
+        4)
+            if [ $((CURRENT_CHARS + WORD_LENGTH)) -le $CHAR_LIMIT ]; then
+                [ -n "$PART4" ] && PART4="$PART4 $word" || PART4="$word"
+                CURRENT_CHARS=$((CURRENT_CHARS + WORD_LENGTH + 1))
+            fi
+            ;;
+    esac
 done
 
 # Convert arrays to strings and make uppercase
-PART1=$(echo "${PART1[@]}" | tr '[:lower:]' '[:upper:]')
-PART2=$(echo "${PART2[@]}" | tr '[:lower:]' '[:upper:]')
-PART3=$(echo "${PART3[@]}" | tr '[:lower:]' '[:upper:]')
-PART4=$(echo "${PART4[@]}" | tr '[:lower:]' '[:upper:]')
+PART1=$(echo "$PART1" | tr '[:lower:]' '[:upper:]')
+PART2=$(echo "$PART2" | tr '[:lower:]' '[:upper:]')
+PART3=$(echo "$PART3" | tr '[:lower:]' '[:upper:]')
+PART4=$(echo "$PART4" | tr '[:lower:]' '[:upper:]')
 
 escape_single_quotes() {
     echo "$1" | sed "s/'/'\\\\\\\\\\\\''/g"
